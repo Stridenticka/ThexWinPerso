@@ -117,10 +117,44 @@ namespace WindowsFormsApp1
         private void disconect_Click(object sender, EventArgs e)
         {
             DLLHelper.UsbCloseDevice(0);
-            textBox1.Text = "Disconected!";
+            textBox1.Text = "Disconnected!";
 
         }
 
-        
+        private void stop_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+        }
+
+        private void onePhoto_Click(object sender, EventArgs e)
+        {
+            ushort[] imageData = new ushort[288 * 384];
+            byte[] bArr = new byte[288 * 384];
+            Bitmap b = new Bitmap(384, 288, PixelFormat.Format8bppIndexed);
+            ColorPalette ncp = b.Palette;
+            Rectangle BoundsRect = new Rectangle(0, 0, 384, 288);
+            BitmapData bmpData;
+            IntPtr ptr;
+            DLLHelper.RecvImage(imageData, 0);
+            for (int n = 0; n < 288 * 384; n++)
+            {
+                bArr[n] = (byte)(imageData[n] >> 8);
+            }
+            bmpData = b.LockBits(BoundsRect, ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+            ptr = bmpData.Scan0;
+
+            Marshal.Copy(bArr, 0, ptr, bmpData.Stride * 288);
+            b.UnlockBits(bmpData);
+
+            RefreshImage(b);
+
+            //to do retrive the data from the  CalcEntireTemp fonction
+
+
+
+
+
+
+        }
     }
 }
