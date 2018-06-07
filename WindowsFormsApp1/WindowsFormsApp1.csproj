@@ -80,12 +80,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="i3system_TE_dll.dll" >
+    <Content Include="i3system_TE_dll.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="i3system_USB_DLL_V2_1.dll" >
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="i3system_USB_DLL_V2_1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="palette1\Gray.png" />
+    <Content Include="palette1\Iron.png" />
+    <Content Include="palette1\Rain.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

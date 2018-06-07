@@ -15,6 +15,8 @@ namespace WindowsFormsApp1
     public partial class Form1 : Form
     {
         private Timer timer1;
+        private String foldername;
+
         public Form1()
         {
             InitializeComponent();
@@ -25,11 +27,11 @@ namespace WindowsFormsApp1
             //textBox1.Text = "you click on the photo button ";
             //initialisation timer
             timer1 = new Timer();
-            timer1.Tick += new EventHandler(timer1_Tick);
+            timer1.Tick += new EventHandler(Timer1_Tick);
             timer1.Interval = 1000; // in miliseconds
             timer1.Start();
         }
-        private void timer1_Tick(object sender, EventArgs e)
+        private void Timer1_Tick(object sender, EventArgs e)
         {
             ushort[] imageData = new ushort[288 * 384];
             byte[] bArr = new byte[288 * 384];
@@ -38,6 +40,12 @@ namespace WindowsFormsApp1
             Rectangle BoundsRect = new Rectangle(0, 0, 384, 288);
             BitmapData bmpData;
             IntPtr ptr;
+
+            for (int i = 0; i < 256; i++)
+                ncp.Entries[i] = Color.FromArgb(255, i, i, i);
+            b.Palette = ncp;
+
+
             DLLHelper.RecvImage(imageData, 0);
             for (int n = 0; n < 288 * 384; n++)
             {
@@ -49,6 +57,7 @@ namespace WindowsFormsApp1
             Marshal.Copy(bArr, 0, ptr, bmpData.Stride * 288);
             b.UnlockBits(bmpData);
 
+            SaveImage(b);
             RefreshImage(b);
 
 
@@ -84,7 +93,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Connect_Click(object sender, EventArgs e)
         {
             IntPtr hWnd = this.Handle;
 
@@ -114,19 +123,19 @@ namespace WindowsFormsApp1
 
         }
 
-        private void disconect_Click(object sender, EventArgs e)
+        private void Disconnect_Click(object sender, EventArgs e)
         {
             DLLHelper.UsbCloseDevice(0);
             textBox1.Text = "Disconnected!";
 
         }
 
-        private void stop_Click(object sender, EventArgs e)
+        private void Stop_Click(object sender, EventArgs e)
         {
             timer1.Stop();
         }
 
-        private void onePhoto_Click(object sender, EventArgs e)
+        private void OnePhoto_Click(object sender, EventArgs e)
         {
             ushort[] imageData = new ushort[288 * 384];
             byte[] bArr = new byte[288 * 384];
@@ -135,7 +144,13 @@ namespace WindowsFormsApp1
             Rectangle BoundsRect = new Rectangle(0, 0, 384, 288);
             BitmapData bmpData;
             IntPtr ptr;
+            //put the image in black and white
+            for (int i = 0; i < 256; i++)
+                ncp.Entries[i] = Color.FromArgb(255, i, i, i);
+            b.Palette = ncp;
+
             DLLHelper.RecvImage(imageData, 0);
+            
             for (int n = 0; n < 288 * 384; n++)
             {
                 bArr[n] = (byte)(imageData[n] >> 8);
@@ -145,16 +160,51 @@ namespace WindowsFormsApp1
 
             Marshal.Copy(bArr, 0, ptr, bmpData.Stride * 288);
             b.UnlockBits(bmpData);
-
+            SaveImage(b);
             RefreshImage(b);
-
+            
             //to do retrive the data from the  CalcEntireTemp fonction
 
+        }
 
+        private void ChangeDirectory_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                foldername = dialog.SelectedPath;
+                foldernamebox.Text=foldername;
+            }
+            if (photoMitaillette.Enabled == false)
+            {
+                photoMitaillette.Enabled = true;
+                onephoto.Enabled = true;
+            }
+        }
 
+        private void SaveImage(Bitmap b)
+        {
+            String s = DateTime.Now.ToString("yyyyMMddHHmmss");
+            
+            b.Save(foldername + "\\thphoto" + s + ".png", ImageFormat.Png);
+        }
 
+       
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
+        }
+
+        private void saveTherm_Click(object sender, EventArgs e)
+        {
+            ushort[] imageData = new ushort[288 * 384];
+            double lol=0;
+
+            lol=DLLHelper.CalcTemp(0,0,false,0);
+
+            Console.WriteLine(lol);
+            
         }
     }
 }
